@@ -1,5 +1,5 @@
 class Task {
-  constructor(id, name, completed) {
+  constructor({ id, name, completed }) {
     this.id = id;
     this.name = name;
     this.completed = completed;
@@ -10,11 +10,25 @@ class Task {
   }
 }
 
+class Board {
+  constructor({ id, title, tasks }) {
+    this.id = id;
+    this.title = title;
+    this.tasks = tasks;
+  }
+
+  makeCopy(copyId) {
+    return new Board({
+      id: copyId,
+      title: `${this.title} Copy`,
+      tasks: this.tasks,
+    });
+  }
+}
+
 function onDuplicateBoard(board) {
   const boardsContainer = document.querySelector(".boards");
-  const newBoard = structuredClone(board);
-  newBoard.id = getNextBoardId();
-  newBoard.title = `${newBoard.title} Copy`;
+  const newBoard = board.makeCopy(getNextBoardId());
 
   const boardContainer = getBoardView(newBoard);
   boardsContainer.appendChild(boardContainer);
@@ -204,7 +218,7 @@ function getBoardView(board) {
   return boardContainer;
 }
 
-const boardPessoal = {
+const boardPessoal = new Board({
   id: 1,
   title: "Title",
   tasks: [
@@ -214,7 +228,7 @@ const boardPessoal = {
     new Task({ id: 4, name: "tarefa 4", completed: false }),
     new Task({ id: 5, name: "tarefa 5", completed: true }),
   ],
-};
+});
 
 let boards = [boardPessoal];
 
