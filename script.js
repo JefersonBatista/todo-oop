@@ -1,3 +1,15 @@
+class Task {
+  constructor(id, name, completed) {
+    this.id = id;
+    this.name = name;
+    this.completed = completed;
+  }
+
+  toggleCompleted() {
+    this.completed = !this.completed;
+  }
+}
+
 function onDuplicateBoard(board) {
   const boardsContainer = document.querySelector(".boards");
   const newBoard = structuredClone(board);
@@ -56,7 +68,7 @@ function onCompleteTask(boardId, taskId) {
   const board = boards.find((board) => board.id === boardId);
 
   const completedTask = board.tasks.find((task) => task.id === taskId);
-  completedTask.completed = !completedTask.completed;
+  completedTask.toggleCompleted();
 
   const taskContainer = document.querySelector(
     `[data-task-id="${taskId}"][data-board-id="${boardId}"]`
@@ -66,11 +78,11 @@ function onCompleteTask(boardId, taskId) {
 
 function onAddTask(boardId, newTaskName) {
   const board = boards.find((board) => board.id === boardId);
-  const task = {
+  const task = new Task({
     id: getNextTaskId(board.tasks),
     name: newTaskName,
     completed: false,
-  };
+  });
   board.tasks.push(task);
 
   const tasksContainer = document.querySelector(
@@ -196,11 +208,11 @@ const boardPessoal = {
   id: 1,
   title: "Title",
   tasks: [
-    { id: 1, name: "tarefa 1", completed: false },
-    { id: 2, name: "tarefa 2", completed: false },
-    { id: 3, name: "tarefa 3", completed: true },
-    { id: 4, name: "tarefa 4", completed: false },
-    { id: 5, name: "tarefa 5", completed: true },
+    new Task({ id: 1, name: "tarefa 1", completed: false }),
+    new Task({ id: 2, name: "tarefa 2", completed: false }),
+    new Task({ id: 3, name: "tarefa 3", completed: true }),
+    new Task({ id: 4, name: "tarefa 4", completed: false }),
+    new Task({ id: 5, name: "tarefa 5", completed: true }),
   ],
 };
 
