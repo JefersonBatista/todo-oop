@@ -15,6 +15,7 @@ class Board {
     this.id = id;
     this.title = title;
     this.tasks = tasks;
+    this.nextTaskId = tasks.length + 1;
   }
 
   makeCopy(copyId) {
@@ -23,6 +24,31 @@ class Board {
       title: `${this.title} Copy`,
       tasks: this.tasks,
     });
+  }
+
+  findTask(taskId) {
+    return this.tasks.find((task) => task.id === taskId);
+  }
+
+  addAndReturnTask(newTaskName) {
+    const task = new Task({
+      id: this.getNextTaskId(),
+      name: newTaskName,
+      completed: false,
+    });
+
+    this.tasks.push(task);
+    return task;
+  }
+
+  getNextTaskId() {
+    const nextTaskId = this.nextTaskId;
+    this.nextTaskId++;
+    return nextTaskId;
+  }
+
+  deleteTask(taskId) {
+    this.tasks = this.tasks.filter((task) => task.id !== taskId);
   }
 }
 
@@ -70,7 +96,7 @@ function onAddBoard(newBoardTitle) {
 
 function onDeleteTask(boardId, taskId) {
   const board = boards.find((board) => board.id === boardId);
-  board.tasks = board.tasks.filter((task) => task.id !== taskId);
+  board.deleteTask(taskId);
 
   const taskContainer = document.querySelector(
     `[data-task-id="${taskId}"][data-board-id="${boardId}"]`
@@ -78,11 +104,11 @@ function onDeleteTask(boardId, taskId) {
   taskContainer.remove();
 }
 
-function onCompleteTask(boardId, taskId) {
+function toggleCompletedTask(boardId, taskId) {
   const board = boards.find((board) => board.id === boardId);
 
-  const completedTask = board.tasks.find((task) => task.id === taskId);
-  completedTask.toggleCompleted();
+  const task = board.findTask(taskId);
+  task.toggleCompleted();
 
   const taskContainer = document.querySelector(
     `[data-task-id="${taskId}"][data-board-id="${boardId}"]`
@@ -92,12 +118,7 @@ function onCompleteTask(boardId, taskId) {
 
 function onAddTask(boardId, newTaskName) {
   const board = boards.find((board) => board.id === boardId);
-  const task = new Task({
-    id: getNextTaskId(board.tasks),
-    name: newTaskName,
-    completed: false,
-  });
-  board.tasks.push(task);
+  const task = board.addAndReturnTask(newTaskName);
 
   const tasksContainer = document.querySelector(
     `[data-board-id="${boardId}"] .tasks`
@@ -128,14 +149,6 @@ function getNextBoardId() {
   return lastBoardId + 1;
 }
 
-function getNextTaskId(tasks) {
-  const lastTaskIndex = tasks.length - 1;
-  const lastTaskId = tasks[lastTaskIndex]?.id;
-  if (!lastTaskId) return 1;
-
-  return lastTaskId + 1;
-}
-
 function getTaskView(boardId, task) {
   const taskContainer = document.createElement("li");
   taskContainer.classList.add("task");
@@ -151,7 +164,7 @@ function getTaskView(boardId, task) {
   taskCheckbox.type = "checkbox";
   taskCheckbox.checked = task.completed;
   taskCheckbox.addEventListener("click", () =>
-    onCompleteTask(boardId, task.id)
+    toggleCompletedTask(boardId, task.id)
   );
   taskContainer.appendChild(taskCheckbox);
 
